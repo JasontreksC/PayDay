@@ -1,0 +1,83 @@
+.app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--tg-bg, #ffffff);
+  color: var(--tg-text, #000000);
+  padding-bottom: 24px;
+}
+
+.header {
+  padding: 16px 16px 8px;
+  text-align: center;
+}
+
+.app-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+  font-size: 13px;
+  color: var(--tg-hint, #8e8e93);
+  margin: 4px 0 0;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px 12px;
+}
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--tg-secondary-bg, #f4f4f5);
+  color: var(--tg-text, #000);
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.nav-btn:active {
+  opacity: 0.7;
+}
+
+.month-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 20px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--tg-text, #000);
+  min-width: 140px;
+}
+
+.today-hint {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--tg-button, #3390ec);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 12px;
+}
