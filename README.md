@@ -10,6 +10,28 @@
   - 일 평균 수입 / 일 평균 지출 (경과 일수 기준)
   - **일일 소비 한도**: `(총 수입 - 총 지출) ÷ 남은 일수` — 손해 없이 지낼 수 있는 하루 예산
 
+## Supabase 설정
+
+1. [Supabase](https://supabase.com) 프로젝트 생성
+2. SQL Editor에서 `supabase/schema.sql`, `supabase/delete_user.sql` 순서대로 실행
+3. Authentication → Providers → **Email** 활성화
+4. Authentication → URL Configuration → **Site URL**을 앱 주소로 설정 (로컬: `http://localhost:5173`)
+5. 프로젝트 루트에 `.env` 파일 생성:
+
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Dashboard → Project Settings → API 에서 URL과 anon key를 확인할 수 있습니다.
+
+## 회원 관리
+
+- 이메일 회원가입 / 로그인
+- 이메일 인증 (가입 후 확인 메일)
+- 비밀번호 재설정
+- 로그아웃 / 회원 탈퇴 (헤더의 이메일 탭 → 계정)
+
 ## 로컬 개발
 
 ```bash
@@ -52,6 +74,7 @@ BotFather `/mybots` → 봇 선택 → Bot Settings → Menu Button → Configur
 ## 기술 스택
 
 - React 19 + TypeScript + Vite
+- Supabase Auth (이메일 인증)
 - [@twa-dev/sdk](https://github.com/twa-dev/sdk) — Telegram Web App SDK
 - CSS (Telegram 테마 변수 연동)
 
