@@ -101,3 +101,13 @@
   gap: 12px;
   padding: 0 12px;
 }
+
+.ledger-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(198, 40, 40, 0.1);
+  color: #c62828;
+  font-size: 13px;
+  text-align: center;
+}

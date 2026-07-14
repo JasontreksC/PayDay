@@ -7,7 +7,7 @@ import './TransactionForm.css';
 interface TransactionFormProps {
   selectedDate: string;
   transactions: Transaction[];
-  onAdd: (type: TransactionType, amount: number, memo?: string) => boolean;
+  onAdd: (type: TransactionType, amount: number, memo?: string) => Promise<boolean>;
   onRemove: (id: string) => void;
 }
 
@@ -20,18 +20,22 @@ export function TransactionForm({
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const { month, day } = parseDateKey(selectedDate);
   const dayTransactions = transactions
     .filter((tx) => tx.date === selectedDate)
     .sort((a, b) => b.id.localeCompare(a.id));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = Number(amount.replace(/,/g, ''));
     if (!parsed || parsed <= 0) return;
 
-    const success = onAdd(type, parsed, memo);
+    setSubmitting(true);
+    const success = await onAdd(type, parsed, memo);
+    setSubmitting(false);
+
     if (success) {
       setAmount('');
       setMemo('');
@@ -95,8 +99,8 @@ export function TransactionForm({
           />
         </div>
 
-        <button type="submit" className="submit-btn">
-          {type === 'income' ? '수입 등록' : '지출 등록'}
+        <button type="submit" className="submit-btn" disabled={submitting}>
+          {submitting ? '등록 중...' : type === 'income' ? '수입 등록' : '지출 등록'}
         </button>
       </form>
 

@@ -19,7 +19,7 @@ import '../App.css';
 export function LedgerApp() {
   useTelegram();
   const { user } = useAuth();
-  const { transactions, addTransaction, removeTransaction } = useTransactions();
+  const { transactions, loading, error, addTransaction, removeTransaction } = useTransactions();
   const [showAccount, setShowAccount] = useState(false);
 
   const today = new Date();
@@ -57,12 +57,16 @@ export function LedgerApp() {
     setSelectedDate(getTodayKey());
   };
 
-  const handleAdd = (type: 'income' | 'expense', amount: number, memo?: string) => {
+  const handleAdd = async (type: 'income' | 'expense', amount: number, memo?: string) => {
     return addTransaction(selectedDate, type, amount, memo);
   };
 
   if (showAccount) {
     return <AccountScreen onBack={() => setShowAccount(false)} />;
+  }
+
+  if (loading) {
+    return <div className="auth-loading">거래 내역 불러오는 중...</div>;
   }
 
   return (
@@ -88,6 +92,8 @@ export function LedgerApp() {
       </div>
 
       <main className="main">
+        {error && <p className="ledger-error">{error}</p>}
+
         <MonthlyStatsPanel
           stats={monthlyStats}
           monthLabel={getMonthLabel(viewYear, viewMonth)}
