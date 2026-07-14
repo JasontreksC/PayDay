@@ -69,7 +69,7 @@ BotFather `/mybots` → 봇 선택 → Bot Settings → Menu Button → Configur
 
 ## 데이터 저장
 
-현재는 브라우저 `localStorage`에 저장됩니다. 기기/브라우저별로 데이터가 유지됩니다.
+거래 내역은 Supabase `transactions` 테이블에 저장됩니다. 로그인한 사용자 본인 데이터만 RLS로 접근할 수 있습니다.
 
 ## 기술 스택
 
