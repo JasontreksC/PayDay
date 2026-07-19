@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Calendar } from '../components/Calendar';
 import { MonthlyStatsPanel } from '../components/MonthlyStats';
+import { Sidebar, type SidebarMenu } from '../components/Sidebar';
 import { TransactionForm } from '../components/TransactionForm';
-import { AccountScreen } from '../components/auth/AccountScreen';
+import { AccountSettings } from '../components/settings/AccountSettings';
+import { RecoveryKeyScreen } from '../components/settings/RecoveryKeyScreen';
+import { ResetDataScreen } from '../components/settings/ResetDataScreen';
 import { useAuth } from '../contexts/AuthContext';
-import { useTelegram } from '../hooks/useTelegram';
 import { useTransactions } from '../hooks/useTransactions';
 import {
   calculateMonthlyStats,
@@ -16,11 +18,23 @@ import {
 import { getTodayKey } from '../utils/date';
 import '../App.css';
 
-export function LedgerApp() {
-  useTelegram();
-  const { user } = useAuth();
-  const { transactions, loading, error, addTransaction, removeTransaction } = useTransactions();
-  const [showAccount, setShowAccount] = useState(false);
+interface LedgerAppProps {
+  onShowLanding: () => void;
+}
+
+export function LedgerApp({ onShowLanding }: LedgerAppProps) {
+  const { user, signOut } = useAuth();
+  const {
+    transactions,
+    loading,
+    error,
+    addTransaction,
+    removeTransaction,
+    clearAllTransactions,
+  } = useTransactions();
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [panel, setPanel] = useState<SidebarMenu | null>(null);
 
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -61,8 +75,21 @@ export function LedgerApp() {
     return addTransaction(selectedDate, type, amount, memo);
   };
 
-  if (showAccount) {
-    return <AccountScreen onBack={() => setShowAccount(false)} />;
+  if (panel === 'account') {
+    return <AccountSettings onBack={() => setPanel(null)} />;
+  }
+
+  if (panel === 'recovery') {
+    return <RecoveryKeyScreen onBack={() => setPanel(null)} />;
+  }
+
+  if (panel === 'reset') {
+    return (
+      <ResetDataScreen
+        onBack={() => setPanel(null)}
+        onReset={clearAllTransactions}
+      />
+    );
   }
 
   if (loading) {
@@ -71,11 +98,29 @@ export function LedgerApp() {
 
   return (
     <div className="app">
-      <header className="header">
-        <h1 className="app-title">PayDay</h1>
-        <button type="button" className="account-entry" onClick={() => setShowAccount(true)}>
-          {user?.email}
+      <Sidebar
+        open={sidebarOpen}
+        email={user?.email}
+        onClose={() => setSidebarOpen(false)}
+        onSelect={setPanel}
+        onLogout={signOut}
+      />
+
+      <header className="header header-bar">
+        <button
+          type="button"
+          className="menu-btn"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="메뉴"
+        >
+          <span />
+          <span />
+          <span />
         </button>
+        <button type="button" className="app-title-btn" onClick={onShowLanding}>
+          PayDay
+        </button>
+        <span className="header-spacer" aria-hidden />
       </header>
 
       <div className="month-nav">

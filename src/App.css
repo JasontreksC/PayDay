@@ -1,8 +1,8 @@
 .app {
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--tg-bg, #ffffff);
-  color: var(--tg-text, #000000);
+  background: var(--ui-bg, #ffffff);
+  color: var(--ui-text, #000000);
   padding-bottom: 24px;
 }
 
@@ -11,37 +11,56 @@
   text-align: center;
 }
 
+.header-bar {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  padding: 12px 12px 8px;
+}
+
+.menu-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.menu-btn span {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ui-text, #000);
+}
+
+.app-title-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  font-family: inherit;
+  color: var(--ui-text, #000);
+  cursor: pointer;
+}
+
+.header-spacer {
+  width: 40px;
+  height: 40px;
+}
+
 .app-title {
   font-size: 22px;
   font-weight: 800;
   margin: 0;
   letter-spacing: -0.5px;
-}
-
-.app-subtitle {
-  font-size: 13px;
-  color: var(--tg-hint, #8e8e93);
-  margin: 4px 0 0;
-}
-
-.account-entry {
-  display: block;
-  margin: 6px auto 0;
-  padding: 0;
-  border: none;
-  background: none;
-  font-size: 12px;
-  color: var(--tg-hint, #8e8e93);
-  cursor: pointer;
-  font-family: inherit;
-  max-width: 240px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.account-entry:hover {
-  color: var(--tg-button, #3390ec);
 }
 
 .month-nav {
@@ -57,8 +76,8 @@
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: var(--tg-secondary-bg, #f4f4f5);
-  color: var(--tg-text, #000);
+  background: var(--ui-secondary-bg, #f4f4f5);
+  color: var(--ui-text, #000);
   font-size: 22px;
   cursor: pointer;
   display: flex;
@@ -85,14 +104,14 @@
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
-  color: var(--tg-text, #000);
+  color: var(--ui-text, #000);
   min-width: 140px;
 }
 
 .today-hint {
   font-size: 10px;
   font-weight: 500;
-  color: var(--tg-button, #3390ec);
+  color: var(--app-button, #121212);
 }
 
 .main {

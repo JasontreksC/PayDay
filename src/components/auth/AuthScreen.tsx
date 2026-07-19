@@ -1,18 +1,26 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCrypto } from '../../contexts/CryptoContext';
 import './auth.css';
 
 function AuthShell({
   children,
   title,
   subtitle,
+  onBack,
 }: {
   children: React.ReactNode;
   title?: string;
   subtitle?: string;
+  onBack?: () => void;
 }) {
   return (
     <div className="auth">
+      {onBack && (
+        <button type="button" className="auth-back" onClick={onBack}>
+          ← 소개로
+        </button>
+      )}
       <div className="auth-brand">
         <h1>PayDay</h1>
         <p>{subtitle ?? '나의 가계부'}</p>
@@ -23,22 +31,33 @@ function AuthShell({
   );
 }
 
-export function AuthScreen() {
+interface AuthScreenProps {
+  initialView?: 'login' | 'signup';
+  onBack?: () => void;
+}
+
+export function AuthScreen({ initialView = 'login', onBack }: AuthScreenProps) {
   const {
     authView,
     pendingEmail,
+    pendingEmailPurpose,
     setAuthView,
     signIn,
     signUp,
     resetPassword,
     resendConfirmation,
   } = useAuth();
+  const { beginClientUnlock, cancelClientUnlock, unlockWithPassword } = useCrypto();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setAuthView(initialView);
+  }, [initialView, setAuthView]);
 
   const resetMessages = () => {
     setError('');
@@ -49,9 +68,18 @@ export function AuthScreen() {
     e.preventDefault();
     resetMessages();
     setSubmitting(true);
+    beginClientUnlock();
 
     const authError = await signIn(email, password);
-    if (authError) setError(authError.message);
+    if (authError) {
+      cancelClientUnlock();
+      setError(authError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    const cryptoError = await unlockWithPassword(password);
+    if (cryptoError) setError(cryptoError);
 
     setSubmitting(false);
   };
@@ -60,9 +88,20 @@ export function AuthScreen() {
     e.preventDefault();
     resetMessages();
     setSubmitting(true);
+    beginClientUnlock();
 
     const authError = await signUp(email, password);
-    if (authError) setError(authError.message);
+    if (authError) {
+      cancelClientUnlock();
+      setError(authError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    const cryptoError = await unlockWithPassword(password);
+    if (cryptoError && cryptoError !== '로그인이 필요합니다.') {
+      setError(cryptoError);
+    }
 
     setSubmitting(false);
   };
@@ -86,18 +125,25 @@ export function AuthScreen() {
     if (authError) {
       setError(authError.message);
     } else {
-      setSuccess('인증 메일을 다시 보냈습니다.');
+      setSuccess(
+        pendingEmailPurpose === 'reset'
+          ? '재설정 메일을 다시 보냈습니다.'
+          : '인증 메일을 다시 보냈습니다.',
+      );
     }
 
     setSubmitting(false);
   };
 
   if (authView === 'check-email') {
+    const isReset = pendingEmailPurpose === 'reset';
     return (
-      <AuthShell title="이메일을 확인해 주세요">
+      <AuthShell title="이메일을 확인해 주세요" onBack={onBack}>
         <p className="auth-muted">{pendingEmail}</p>
         <p className="auth-message" style={{ marginTop: 16 }}>
-          메일의 링크를 눌러 인증을 완료하세요.
+          {isReset
+            ? '메일의 링크를 눌러 새 비밀번호를 설정하세요.'
+            : '메일의 링크를 눌러 인증을 완료하세요.'}
         </p>
         {error && <p className="auth-error">{error}</p>}
         {success && <p className="auth-success">{success}</p>}
@@ -108,7 +154,7 @@ export function AuthScreen() {
             onClick={handleResend}
             disabled={submitting}
           >
-            인증 메일 다시 보내기
+            {isReset ? '재설정 메일 다시 보내기' : '인증 메일 다시 보내기'}
           </button>
           <button
             type="button"
@@ -127,7 +173,10 @@ export function AuthScreen() {
 
   if (authView === 'forgot') {
     return (
-      <AuthShell title="비밀번호 재설정">
+      <AuthShell title="비밀번호 재설정" onBack={onBack}>
+        <p className="auth-muted" style={{ marginBottom: 16 }}>
+          가입한 이메일로 재설정 링크를 보냅니다.
+        </p>
         <form className="auth-form" onSubmit={handleForgot}>
           <div className="auth-field">
             <label htmlFor="email">이메일</label>
@@ -163,7 +212,7 @@ export function AuthScreen() {
 
   if (authView === 'signup') {
     return (
-      <AuthShell>
+      <AuthShell onBack={onBack}>
         <form className="auth-form" onSubmit={handleSignUp}>
           <div className="auth-field">
             <label htmlFor="email">이메일</label>
@@ -184,7 +233,7 @@ export function AuthScreen() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
+              minLength={8}
               required
             />
           </div>
@@ -210,7 +259,7 @@ export function AuthScreen() {
   }
 
   return (
-    <AuthShell>
+    <AuthShell onBack={onBack}>
       <form className="auth-form" onSubmit={handleLogin}>
         <div className="auth-field">
           <label htmlFor="email">이메일</label>
@@ -248,7 +297,7 @@ export function AuthScreen() {
             setAuthView('forgot');
           }}
         >
-          비밀번호를 잊으셨나요?
+          비밀번호 재설정
         </button>
         <button
           type="button"

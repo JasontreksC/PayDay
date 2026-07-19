@@ -13,6 +13,7 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 const RECOVERY_KEY = 'payday_recovery';
 
 type AuthView = 'login' | 'signup' | 'forgot' | 'check-email';
+type PendingEmailPurpose = 'signup' | 'reset';
 
 interface AuthContextValue {
   user: User | null;
@@ -21,12 +22,14 @@ interface AuthContextValue {
   isRecovery: boolean;
   authView: AuthView;
   pendingEmail: string;
+  pendingEmailPurpose: PendingEmailPurpose | null;
   setAuthView: (view: AuthView) => void;
   signIn: (email: string, password: string) => Promise<AuthError | null>;
   signUp: (email: string, password: string) => Promise<AuthError | null>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<AuthError | null>;
   updatePassword: (password: string) => Promise<AuthError | null>;
+  finishRecovery: () => void;
   deleteAccount: () => Promise<string | null>;
   resendConfirmation: () => Promise<AuthError | null>;
 }
@@ -44,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isRecovery, setIsRecovery] = useState(false);
   const [authView, setAuthView] = useState<AuthView>('login');
   const [pendingEmail, setPendingEmail] = useState('');
+  const [pendingEmailPurpose, setPendingEmailPurpose] = useState<PendingEmailPurpose | null>(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -92,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!error) {
       setPendingEmail(email);
+      setPendingEmailPurpose('signup');
       setAuthView('check-email');
     }
 
@@ -109,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!error) {
       setPendingEmail(email);
+      setPendingEmailPurpose('reset');
       setAuthView('check-email');
     }
 
@@ -117,18 +123,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updatePassword = useCallback(async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password });
-
-    if (!error) {
-      setIsRecovery(false);
-      sessionStorage.removeItem(RECOVERY_KEY);
-    }
-
+    // isRecovery는 vault 복구(복구 키 입력)가 끝난 뒤 finishRecovery로 해제
     return error;
+  }, []);
+
+  const finishRecovery = useCallback(() => {
+    setIsRecovery(false);
+    sessionStorage.removeItem(RECOVERY_KEY);
   }, []);
 
   const resendConfirmation = useCallback(async () => {
     if (!pendingEmail) {
       return { message: '이메일이 없습니다.', name: 'AuthError', status: 400 } as AuthError;
+    }
+
+    if (pendingEmailPurpose === 'reset') {
+      const { error } = await supabase.auth.resetPasswordForEmail(pendingEmail, {
+        redirectTo: getRedirectUrl(),
+      });
+      return error;
     }
 
     const { error } = await supabase.auth.resend({
@@ -138,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return error;
-  }, [pendingEmail]);
+  }, [pendingEmail, pendingEmailPurpose]);
 
   const deleteAccount = useCallback(async () => {
     const { error } = await supabase.rpc('delete_user');
@@ -159,12 +172,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isRecovery,
       authView,
       pendingEmail,
+      pendingEmailPurpose,
       setAuthView,
       signIn,
       signUp,
       signOut,
       resetPassword,
       updatePassword,
+      finishRecovery,
       deleteAccount,
       resendConfirmation,
     }),
@@ -175,11 +190,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isRecovery,
       authView,
       pendingEmail,
+      pendingEmailPurpose,
       signIn,
       signUp,
       signOut,
       resetPassword,
       updatePassword,
+      finishRecovery,
       deleteAccount,
       resendConfirmation,
     ],

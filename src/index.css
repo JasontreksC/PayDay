@@ -1,10 +1,13 @@
 :root {
-  --tg-bg: #ffffff;
-  --tg-text: #000000;
-  --tg-hint: #8e8e93;
-  --tg-button: #3390ec;
-  --tg-button-text: #ffffff;
-  --tg-secondary-bg: #f4f4f5;
+  --ui-bg: #ffffff;
+  --ui-text: #000000;
+  --ui-hint: #8e8e93;
+  --ui-button: #3390ec;
+  --ui-button-text: #ffffff;
+  --ui-secondary-bg: #f4f4f5;
+  /* 시작하기/로그인 등 공통 CTA (캘린더·수입지출 등록 제외) */
+  --app-button: #121212;
+  --app-button-text: #ffffff;
 }
 
 * {
@@ -17,8 +20,8 @@ body {
     Arial, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--tg-bg);
-  color: var(--tg-text);
+  background: var(--ui-bg);
+  color: var(--ui-text);
   overflow-x: hidden;
 }
 

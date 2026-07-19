@@ -1,5 +1,5 @@
 .transaction-form {
-  background: var(--tg-secondary-bg, #f4f4f5);
+  background: var(--ui-secondary-bg, #f4f4f5);
   border-radius: 16px;
   padding: 16px;
 }
@@ -8,7 +8,7 @@
   font-size: 16px;
   font-weight: 700;
   margin: 0 0 14px;
-  color: var(--tg-text, #000);
+  color: var(--ui-text, #000);
 }
 
 .type-toggle {
@@ -26,8 +26,8 @@
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  background: var(--tg-bg, #fff);
-  color: var(--tg-hint, #8e8e93);
+  background: var(--ui-bg, #fff);
+  color: var(--ui-hint, #8e8e93);
   transition: all 0.15s;
 }
 
@@ -50,7 +50,7 @@
 .input-group label {
   display: block;
   font-size: 12px;
-  color: var(--tg-hint, #8e8e93);
+  color: var(--ui-hint, #8e8e93);
   margin-bottom: 6px;
 }
 
@@ -61,13 +61,13 @@
   border-radius: 10px;
   font-size: 16px;
   font-family: inherit;
-  background: var(--tg-bg, #fff);
-  color: var(--tg-text, #000);
+  background: var(--ui-bg, #fff);
+  color: var(--ui-text, #000);
   box-sizing: border-box;
 }
 
 .input-group input:focus {
-  outline: 2px solid var(--tg-button, #3390ec);
+  outline: 2px solid var(--ui-button, #3390ec);
   outline-offset: -2px;
 }
 
@@ -86,7 +86,7 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 14px;
-  color: var(--tg-hint, #8e8e93);
+  color: var(--ui-hint, #8e8e93);
 }
 
 .submit-btn {
@@ -98,8 +98,8 @@
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  background: var(--tg-button, #3390ec);
-  color: var(--tg-button-text, #fff);
+  background: var(--ui-button, #3390ec);
+  color: var(--ui-button-text, #fff);
   margin-top: 4px;
 }
 
@@ -116,7 +116,7 @@
 .list-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--tg-hint, #8e8e93);
+  color: var(--ui-hint, #8e8e93);
   margin: 0 0 10px;
 }
 
@@ -134,7 +134,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  background: var(--tg-bg, #fff);
+  background: var(--ui-bg, #fff);
   border-radius: 10px;
 }
 
@@ -159,7 +159,7 @@
 
 .item-memo {
   font-size: 12px;
-  color: var(--tg-hint, #8e8e93);
+  color: var(--ui-hint, #8e8e93);
 }
 
 .delete-btn {
@@ -168,7 +168,7 @@
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.06);
-  color: var(--tg-hint, #8e8e93);
+  color: var(--ui-hint, #8e8e93);
   cursor: pointer;
   font-size: 12px;
   display: flex;
