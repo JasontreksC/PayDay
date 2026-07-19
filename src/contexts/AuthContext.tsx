@@ -32,6 +32,8 @@ interface AuthContextValue {
   finishRecovery: () => void;
   deleteAccount: () => Promise<string | null>;
   resendConfirmation: () => Promise<AuthError | null>;
+  /** 회원가입 확인 메일의 6자리 코드로 이메일을 인증하고 세션을 생성 */
+  verifyEmailOtp: (token: string) => Promise<AuthError | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -153,6 +155,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error;
   }, [pendingEmail, pendingEmailPurpose]);
 
+  const verifyEmailOtp = useCallback(
+    async (token: string) => {
+      if (!pendingEmail) {
+        return {
+          message: '이메일 정보가 없습니다. 처음부터 다시 시도해 주세요.',
+          name: 'AuthError',
+          status: 400,
+        } as AuthError;
+      }
+
+      const { error } = await supabase.auth.verifyOtp({
+        email: pendingEmail,
+        token: token.replace(/\s+/g, ''),
+        type: 'signup',
+      });
+
+      return error;
+    },
+    [pendingEmail],
+  );
+
   const deleteAccount = useCallback(async () => {
     const { error } = await supabase.rpc('delete_user');
 
@@ -182,6 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       finishRecovery,
       deleteAccount,
       resendConfirmation,
+      verifyEmailOtp,
     }),
     [
       user,
@@ -199,6 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       finishRecovery,
       deleteAccount,
       resendConfirmation,
+      verifyEmailOtp,
     ],
   );
 

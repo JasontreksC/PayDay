@@ -46,11 +46,13 @@ export function AuthScreen({ initialView = 'login', onBack }: AuthScreenProps) {
     signUp,
     resetPassword,
     resendConfirmation,
+    verifyEmailOtp,
   } = useAuth();
   const { beginClientUnlock, cancelClientUnlock, unlockWithPassword } = useCrypto();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -106,6 +108,33 @@ export function AuthScreen({ initialView = 'login', onBack }: AuthScreenProps) {
     setSubmitting(false);
   };
 
+  const handleVerify = async (e: FormEvent) => {
+    e.preventDefault();
+    resetMessages();
+    setSubmitting(true);
+
+    const authError = await verifyEmailOtp(code);
+    if (authError) {
+      setError(authError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    // 인증 성공 → 세션 생성됨. 방금 가입에 쓴 비밀번호로 메모 vault를 만든다.
+    // (비밀번호를 알 수 없는 경우엔 이후 잠금 해제 화면에서 다시 입력)
+    beginClientUnlock();
+    if (password) {
+      const cryptoError = await unlockWithPassword(password);
+      if (cryptoError && cryptoError !== '로그인이 필요합니다.') {
+        setError(cryptoError);
+      }
+    } else {
+      cancelClientUnlock();
+    }
+
+    setSubmitting(false);
+  };
+
   const handleForgot = async (e: FormEvent) => {
     e.preventDefault();
     resetMessages();
@@ -143,10 +172,42 @@ export function AuthScreen({ initialView = 'login', onBack }: AuthScreenProps) {
         <p className="auth-message" style={{ marginTop: 16 }}>
           {isReset
             ? '메일의 링크를 눌러 새 비밀번호를 설정하세요.'
-            : '메일의 링크를 눌러 인증을 완료하세요.'}
+            : '메일로 받은 8자리 인증번호를 입력해 주세요.'}
         </p>
-        {error && <p className="auth-error">{error}</p>}
-        {success && <p className="auth-success">{success}</p>}
+        {!isReset && (
+          <form className="auth-form" onSubmit={handleVerify} style={{ marginTop: 16 }}>
+            <div className="auth-field">
+              <label htmlFor="otp">인증번호</label>
+              <input
+                id="otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]*"
+                maxLength={8}
+                placeholder="00000000"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                required
+              />
+            </div>
+            {error && <p className="auth-error">{error}</p>}
+            {success && <p className="auth-success">{success}</p>}
+            <button
+              className="auth-btn"
+              type="submit"
+              disabled={submitting || code.length < 8}
+            >
+              인증하고 계속
+            </button>
+          </form>
+        )}
+        {isReset && (
+          <>
+            {error && <p className="auth-error">{error}</p>}
+            {success && <p className="auth-success">{success}</p>}
+          </>
+        )}
         <div className="auth-links">
           <button
             type="button"
@@ -154,7 +215,7 @@ export function AuthScreen({ initialView = 'login', onBack }: AuthScreenProps) {
             onClick={handleResend}
             disabled={submitting}
           >
-            {isReset ? '재설정 메일 다시 보내기' : '인증 메일 다시 보내기'}
+            {isReset ? '재설정 메일 다시 보내기' : '인증번호 다시 보내기'}
           </button>
           <button
             type="button"

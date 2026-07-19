@@ -40,7 +40,7 @@ npm install
 npm run dev
 ```
 
-브라우저에서 `http://localhost:5173` 으로 확인할 수 있습니다. (텔레그램 SDK 없이도 동작)
+브라우저에서 `http://localhost:5173` 으로 확인할 수 있습니다.
 
 ## 배포
 
